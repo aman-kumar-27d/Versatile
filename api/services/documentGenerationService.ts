@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import QRCode from 'qrcode';
+// @ts-ignore
+import * as QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../../supabase/server.ts';
 
