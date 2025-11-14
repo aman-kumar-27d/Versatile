@@ -175,8 +175,8 @@ CREATE POLICY "Students can view documents related to their approved internships
             WHERE applications.student_id = auth.uid() 
             AND applications.status = 'approved'
             AND (
-                (documents.related_type = 'internship' AND documents.related_id = applications.internship_id::TEXT) OR
-                (documents.related_type = 'application' AND documents.related_id = applications.id::TEXT)
+                (documents.related_type = 'internship' AND documents.related_id::uuid = applications.internship_id) OR
+                (documents.related_type = 'application' AND documents.related_id::uuid = applications.id)
             )
         ) OR
         EXISTS (

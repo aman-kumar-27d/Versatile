@@ -29,8 +29,18 @@ export default function Login() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       clearError()
-      await login(data.email, data.password)
-      navigate('/dashboard')
+      const result = await login(data.email, data.password)
+      
+      // Get the user from the auth store after successful login
+      const authState = useAuth.getState()
+      const userRole = authState.user?.role
+      
+      // Redirect based on role
+      if (userRole === 'admin') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/dashboard')
+      }
     } catch (error) {
       // Error is handled by the auth hook
       console.error('Login failed:', error)

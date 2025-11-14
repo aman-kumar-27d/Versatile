@@ -53,7 +53,13 @@ export default function Register() {
         lastName: data.lastName,
         phone: data.phone,
       })
-      navigate('/dashboard')
+      
+      // Redirect based on role
+      if (data.role === 'admin') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/dashboard')
+      }
     } catch (error) {
       // Error is handled by the auth hook
       console.error('Registration failed:', error)

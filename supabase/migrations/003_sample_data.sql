@@ -103,58 +103,54 @@ WHERE random() < 0.7;
 
 -- Insert sample courses
 WITH internship_ids AS (
-    SELECT id FROM internships
+    SELECT id, title FROM internships
 ),
 admin_ids AS (
     SELECT id FROM users WHERE role = 'admin'
-)
-INSERT INTO courses (title, description, content, duration, internship_id, instructor_id, materials)
-SELECT 
-    'Introduction to Web Development',
-    'Learn the fundamentals of web development including HTML, CSS, and JavaScript.',
-    'This course covers HTML structure, CSS styling, and JavaScript programming basics. Students will build their first website by the end of the course.',
-    20,
-    i.id,
-    a.id,
-    ARRAY['https://example.com/materials/html-guide.pdf', 'https://example.com/materials/css-basics.pdf']
-FROM internship_ids i
-CROSS JOIN admin_ids a
-WHERE i.title = 'Software Development Internship'
-LIMIT 1;
-
--- Insert more sample courses
-WITH internship_ids AS (
-    SELECT id FROM internships
 ),
-admin_ids AS (
-    SELECT id FROM users WHERE role = 'admin'
+course_data AS (
+    SELECT 
+        'Introduction to Web Development' as title,
+        'Learn the fundamentals of web development including HTML, CSS, and JavaScript.' as description,
+        'This course covers HTML structure, CSS styling, and JavaScript programming basics. Students will build their first website by the end of the course.' as content,
+        20 as duration,
+        i.id as internship_id,
+        a.id as instructor_id,
+        ARRAY['https://example.com/materials/html-guide.pdf', 'https://example.com/materials/css-basics.pdf'] as materials
+    FROM internship_ids i
+    CROSS JOIN admin_ids a
+    WHERE i.title = 'Software Development Internship'
+    LIMIT 1
+    UNION ALL
+    SELECT 
+        'Data Analysis with Python',
+        'Introduction to data analysis using Python programming language.',
+        'Learn to use Python libraries like Pandas, NumPy, and Matplotlib for data analysis and visualization.',
+        30,
+        i.id,
+        a.id,
+        ARRAY['https://example.com/materials/python-intro.pdf', 'https://example.com/materials/pandas-guide.pdf']
+    FROM internship_ids i
+    CROSS JOIN admin_ids a
+    WHERE i.title = 'Data Science Internship'
+    LIMIT 1
+    UNION ALL
+    SELECT 
+        'Social Media Marketing',
+        'Learn effective social media marketing strategies and content creation.',
+        'This course covers platform-specific strategies, content planning, and analytics for social media marketing.',
+        15,
+        i.id,
+        a.id,
+        ARRAY['https://example.com/materials/social-media-guide.pdf']
+    FROM internship_ids i
+    CROSS JOIN admin_ids a
+    WHERE i.title = 'Digital Marketing Internship'
+    LIMIT 1
 )
 INSERT INTO courses (title, description, content, duration, internship_id, instructor_id, materials)
-SELECT 
-    'Data Analysis with Python',
-    'Introduction to data analysis using Python programming language.',
-    'Learn to use Python libraries like Pandas, NumPy, and Matplotlib for data analysis and visualization.',
-    30,
-    i.id,
-    a.id,
-    ARRAY['https://example.com/materials/python-intro.pdf', 'https://example.com/materials/pandas-guide.pdf']
-FROM internship_ids i
-CROSS JOIN admin_ids a
-WHERE i.title = 'Data Science Internship'
-LIMIT 1
-UNION ALL
-SELECT 
-    'Social Media Marketing',
-    'Learn effective social media marketing strategies and content creation.',
-    'This course covers platform-specific strategies, content planning, and analytics for social media marketing.',
-    15,
-    i.id,
-    a.id,
-    ARRAY['https://example.com/materials/social-media-guide.pdf']
-FROM internship_ids i
-CROSS JOIN admin_ids a
-WHERE i.title = 'Digital Marketing Internship'
-LIMIT 1;
+SELECT title, description, content, duration, internship_id, instructor_id, materials
+FROM course_data;
 
 -- Insert sample student course enrollments
 WITH approved_applications AS (
@@ -202,38 +198,42 @@ WHERE random() < 0.6;
 
 -- Insert sample meetings
 WITH internship_ids AS (
-    SELECT id FROM internships
+    SELECT id, title FROM internships
 ),
 admin_ids AS (
     SELECT id FROM users WHERE role = 'admin'
+),
+meeting_data AS (
+    SELECT 
+        'Weekly Team Meeting' as title,
+        'Regular team meeting to discuss progress and plan upcoming tasks.' as description,
+        'meeting' as type,
+        CURRENT_DATE + INTERVAL '1 day' + INTERVAL '10:00:00' as start_time,
+        CURRENT_DATE + INTERVAL '1 day' + INTERVAL '11:00:00' as end_time,
+        i.id as internship_id,
+        a.id as organizer_id,
+        'Conference Room A' as location
+    FROM internship_ids i
+    CROSS JOIN admin_ids a
+    LIMIT 2
+    UNION ALL
+    SELECT 
+        'Introduction to Web Development',
+        'First class of the web development course.',
+        'class',
+        CURRENT_DATE + INTERVAL '2 days' + INTERVAL '14:00:00',
+        CURRENT_DATE + INTERVAL '2 days' + INTERVAL '16:00:00',
+        i.id,
+        a.id,
+        'Computer Lab 1'
+    FROM internship_ids i
+    CROSS JOIN admin_ids a
+    WHERE i.title = 'Software Development Internship'
+    LIMIT 1
 )
 INSERT INTO meetings (title, description, type, start_time, end_time, internship_id, organizer_id, location)
-SELECT 
-    'Weekly Team Meeting',
-    'Regular team meeting to discuss progress and plan upcoming tasks.',
-    'meeting',
-    CURRENT_DATE + INTERVAL '1 day' + INTERVAL '10:00:00',
-    CURRENT_DATE + INTERVAL '1 day' + INTERVAL '11:00:00',
-    i.id,
-    a.id,
-    'Conference Room A'
-FROM internship_ids i
-CROSS JOIN admin_ids a
-LIMIT 2
-UNION ALL
-SELECT 
-    'Introduction to Web Development',
-    'First class of the web development course.',
-    'class',
-    CURRENT_DATE + INTERVAL '2 days' + INTERVAL '14:00:00',
-    CURRENT_DATE + INTERVAL '2 days' + INTERVAL '16:00:00',
-    i.id,
-    a.id,
-    'Computer Lab 1'
-FROM internship_ids i
-CROSS JOIN admin_ids a
-WHERE i.title = 'Software Development Internship'
-LIMIT 1;
+SELECT title, description, type, start_time, end_time, internship_id, organizer_id, location
+FROM meeting_data;
 
 -- Insert sample documents
 WITH internship_ids AS (
@@ -243,36 +243,40 @@ application_ids AS (
     SELECT id FROM applications
 ),
 user_ids AS (
-    SELECT id FROM users
+    SELECT id, role FROM users
+),
+document_data AS (
+    SELECT 
+        'Software Development Internship - Offer Letter' as name,
+        'offer_letter' as type,
+        'https://example.com/documents/offer-letter-template.pdf' as file_url,
+        102400 as file_size,
+        'application/pdf' as mime_type,
+        i.id::TEXT as related_id,
+        'internship' as related_type,
+        u.id as uploaded_by
+    FROM internship_ids i
+    CROSS JOIN user_ids u
+    WHERE u.role = 'admin'
+    LIMIT 2
+    UNION ALL
+    SELECT 
+        'Course Material - HTML Basics',
+        'material',
+        'https://example.com/materials/html-basics.pdf',
+        512000,
+        'application/pdf',
+        i.id::TEXT,
+        'course',
+        u.id
+    FROM internship_ids i
+    CROSS JOIN user_ids u
+    WHERE u.role = 'admin'
+    LIMIT 1
 )
 INSERT INTO documents (name, type, file_url, file_size, mime_type, related_id, related_type, uploaded_by)
-SELECT 
-    'Software Development Internship - Offer Letter',
-    'offer_letter',
-    'https://example.com/documents/offer-letter-template.pdf',
-    102400,
-    'application/pdf',
-    i.id::TEXT,
-    'internship',
-    u.id
-FROM internship_ids i
-CROSS JOIN user_ids u
-WHERE u.role = 'admin'
-LIMIT 2
-UNION ALL
-SELECT 
-    'Course Material - HTML Basics',
-    'material',
-    'https://example.com/materials/html-basics.pdf',
-    512000,
-    'application/pdf',
-    i.id::TEXT,
-    'course',
-    u.id
-FROM internship_ids i
-CROSS JOIN user_ids u
-WHERE u.role = 'admin'
-LIMIT 1;
+SELECT name, type, file_url, file_size, mime_type, related_id, related_type, uploaded_by
+FROM document_data;
 
 -- Insert sample notifications
 WITH user_ids AS (

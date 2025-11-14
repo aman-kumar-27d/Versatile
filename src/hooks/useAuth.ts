@@ -70,10 +70,26 @@ export const useAuth = create<AuthState>()(
             body: JSON.stringify({ email, password }),
           })
 
-          const data = await response.json()
-
+          // Check if response is ok before parsing JSON
           if (!response.ok) {
-            throw new Error(data.error || 'Login failed')
+            // Try to parse error response
+            let errorMessage = 'Login failed'
+            try {
+              const errorData = await response.json()
+              errorMessage = errorData.error || errorMessage
+            } catch {
+              // If JSON parsing fails, use status text
+              errorMessage = response.statusText || errorMessage
+            }
+            throw new Error(errorMessage)
+          }
+
+          // Parse JSON response
+          let data
+          try {
+            data = await response.json()
+          } catch (jsonError) {
+            throw new Error('Server returned invalid response. Please ensure the backend server is running.')
           }
 
           set({
@@ -85,9 +101,12 @@ export const useAuth = create<AuthState>()(
             loading: false,
           })
         } catch (error) {
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : 'Login failed. Please check your connection.'
           set({
             isLoading: false,
-            error: error instanceof Error ? error.message : 'Login failed',
+            error: errorMessage,
           })
           throw error
         }
@@ -105,10 +124,24 @@ export const useAuth = create<AuthState>()(
             body: JSON.stringify(userData),
           })
 
-          const data = await response.json()
-
+          // Check if response is ok before parsing JSON
           if (!response.ok) {
-            throw new Error(data.error || 'Registration failed')
+            let errorMessage = 'Registration failed'
+            try {
+              const errorData = await response.json()
+              errorMessage = errorData.error || errorMessage
+            } catch {
+              errorMessage = response.statusText || errorMessage
+            }
+            throw new Error(errorMessage)
+          }
+
+          // Parse JSON response
+          let data
+          try {
+            data = await response.json()
+          } catch (jsonError) {
+            throw new Error('Server returned invalid response. Please ensure the backend server is running.')
           }
 
           set({
