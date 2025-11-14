@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { supabase } from '../config/supabase'
+import { supabase } from '../../supabase/server.ts'
 import { authenticateToken } from '../middleware/auth'
 import { logger } from '../middleware/auditLogger'
 

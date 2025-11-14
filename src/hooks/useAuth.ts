@@ -16,6 +16,8 @@ export interface AuthState {
   token: string | null
   isLoading: boolean
   error: string | null
+  isAuthenticated: boolean
+  loading: boolean
   
   // Actions
   login: (email: string, password: string) => Promise<void>
@@ -53,6 +55,8 @@ export const useAuth = create<AuthState>()(
       token: null,
       isLoading: false,
       error: null,
+      isAuthenticated: false,
+      loading: false,
 
       login: async (email: string, password: string) => {
         set({ isLoading: true, error: null })
@@ -77,6 +81,8 @@ export const useAuth = create<AuthState>()(
             token: data.token,
             isLoading: false,
             error: null,
+            isAuthenticated: true,
+            loading: false,
           })
         } catch (error) {
           set({
@@ -110,6 +116,8 @@ export const useAuth = create<AuthState>()(
             token: data.token,
             isLoading: false,
             error: null,
+            isAuthenticated: true,
+            loading: false,
           })
         } catch (error) {
           set({
@@ -125,6 +133,8 @@ export const useAuth = create<AuthState>()(
           user: null,
           token: null,
           error: null,
+          isAuthenticated: false,
+          loading: false,
         })
       },
 

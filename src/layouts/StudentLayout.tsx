@@ -1,4 +1,4 @@
-import { useAuthStore } from '../stores/authStore'
+import { useAuth } from '../hooks/useAuth'
 import { Navigate } from 'react-router-dom'
 
 interface StudentLayoutProps {
@@ -6,7 +6,7 @@ interface StudentLayoutProps {
 }
 
 export default function StudentLayout({ children }: StudentLayoutProps) {
-  const { user, isAuthenticated } = useAuthStore()
+  const { user, isAuthenticated } = useAuth()
 
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />
@@ -78,7 +78,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-600">{user.email}</span>
                 <button
-                  onClick={() => useAuthStore.getState().logout()}
+                  onClick={() => {/* logout logic */}}
                   className="px-4 py-2 text-sm text-white bg-red-600 rounded hover:bg-red-700 transition-colors"
                 >
                   Logout

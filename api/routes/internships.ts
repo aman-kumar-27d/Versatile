@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { supabaseAdmin } from '../../supabase/server.js'
-import { authenticateToken, requireAdmin, AuthenticatedRequest } from '../middleware/auth.js'
+import { authenticateToken, authorize, AuthenticatedRequest } from '../middleware/auth.js'
 import { notificationService } from '../services/notificationService.js'
 import type { Internship, Application } from '../../supabase/server.js'
 
@@ -101,14 +101,13 @@ router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res) => 
       .from('internships')
       .select('*')
       .eq('id', id)
-      .single()
 
     // If user is not admin, only show published internships
     if (!req.user || req.user.role !== 'admin') {
       query = query.eq('status', 'published')
     }
 
-    const { data: internship, error } = await query
+    const { data: internship, error } = await query.single()
 
     if (error || !internship) {
       return res.status(404).json({ error: 'Internship not found' })
@@ -126,7 +125,7 @@ router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res) => 
  * @desc    Create new internship
  * @access  Private (Admin only)
  */
-router.post('/', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+router.post('/', authenticateToken, authorize(['admin']), async (req: AuthenticatedRequest, res) => {
   try {
     // Validate request body
     const validationResult = createInternshipSchema.safeParse(req.body)
@@ -168,7 +167,7 @@ router.post('/', authenticateToken, requireAdmin, async (req: AuthenticatedReque
  * @desc    Update internship
  * @access  Private (Admin only)
  */
-router.put('/:id', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+router.put('/:id', authenticateToken, authorize(['admin']), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params
 
@@ -225,7 +224,7 @@ router.put('/:id', authenticateToken, requireAdmin, async (req: AuthenticatedReq
  * @desc    Delete internship
  * @access  Private (Admin only)
  */
-router.delete('/:id', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', authenticateToken, authorize(['admin']), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params
 
@@ -343,7 +342,7 @@ router.post('/:id/apply', authenticateToken, async (req: AuthenticatedRequest, r
  * @desc    Get applications for internship
  * @access  Private (Admin only)
  */
-router.get('/:id/applications', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+router.get('/:id/applications', authenticateToken, authorize(['admin']), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params
     const { status, page = 1, limit = 10 } = req.query
@@ -387,7 +386,7 @@ router.get('/:id/applications', authenticateToken, requireAdmin, async (req: Aut
  * @desc    Update application status
  * @access  Private (Admin only)
  */
-router.put('/:id/applications/:applicationId', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+router.put('/:id/applications/:applicationId', authenticateToken, authorize(['admin']), async (req: AuthenticatedRequest, res) => {
   try {
     const { id, applicationId } = req.params
 

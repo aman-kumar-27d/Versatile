@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from '../config/supabase';
+import { supabase } from '../../supabase/server.ts';
 
 export interface DocumentTemplate {
   id: string;

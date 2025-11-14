@@ -1,9 +1,9 @@
 import express from 'express'
 import multer from 'multer'
 import { z } from 'zod'
-import { requireAuth } from '../middleware/auth.js'
+import { authenticateToken } from '../middleware/auth.js'
 import { storageService } from '../services/storageService.js'
-import { supabaseAdmin } from '../supabase/server.js'
+import { supabaseAdmin } from '../../supabase/server.js'
 
 const router = express.Router()
 
@@ -25,7 +25,7 @@ const documentSchema = z.object({
 })
 
 // Upload document
-router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
+router.post('/upload', authenticateToken, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -81,7 +81,7 @@ router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
 })
 
 // Get user documents
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const user = req.user!
     const { type, internship_id, course_id } = req.query
@@ -124,7 +124,7 @@ router.get('/', requireAuth, async (req, res) => {
 })
 
 // Get document download URL
-router.get('/:id/download', requireAuth, async (req, res) => {
+router.get('/:id/download', authenticateToken, async (req, res) => {
   try {
     const user = req.user!
     const { id } = req.params
@@ -169,7 +169,7 @@ router.get('/:id/download', requireAuth, async (req, res) => {
 })
 
 // Delete document
-router.delete('/:id', requireAuth, async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const user = req.user!
     const { id } = req.params
@@ -216,7 +216,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
 })
 
 // Share document (generate shareable link)
-router.post('/:id/share', requireAuth, async (req, res) => {
+router.post('/:id/share', authenticateToken, async (req, res) => {
   try {
     const user = req.user!
     const { id } = req.params

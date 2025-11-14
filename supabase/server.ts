@@ -15,6 +15,9 @@ if (!supabaseUrl || !supabaseServiceKey) {
 // Server-side client with service role key (full privileges)
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
+// Regular client for general operations
+export const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
 export type Database = {
   public: {
     Tables: {

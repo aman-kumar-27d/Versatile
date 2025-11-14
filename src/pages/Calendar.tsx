@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Plus, Search } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus, Search } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths, subMonths, isSameMonth, isSameDay } from 'date-fns';
 
 interface CalendarEvent {
@@ -72,7 +72,7 @@ const Calendar: React.FC = () => {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <Calendar className="h-8 w-8 text-blue-600" />
+              <CalendarIcon className="h-8 w-8 text-blue-600" />
               <h1 className="text-3xl font-bold text-gray-900">Calendar & Scheduling</h1>
             </div>
             <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">

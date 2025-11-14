@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { Clock } from 'lucide-react';
 import { supabase } from '../../supabase/config';
 import { Internship } from '../../supabase/config';
 import { Plus, Search, Filter, Edit, Trash2, Eye, Users, Calendar, MapPin, DollarSign } from 'lucide-react';

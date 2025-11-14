@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { TrendingUp, Users, Briefcase, Calendar, Download, Filter, BarChart3, PieChart as PieChartIcon, Activity } from 'lucide-react';
+import { TrendingUp, Users, Briefcase, Calendar, Download, Filter, BarChart3, PieChart as PieChartIcon, Activity, CheckCircle, Building } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface DashboardStats {
@@ -423,7 +423,7 @@ export default function ReportingAnalytics() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Statistics</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              {chartType === 'bar' && (
+              {chartType === 'bar' ? (
                 <BarChart data={applicationStats}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
@@ -435,8 +435,7 @@ export default function ReportingAnalytics() {
                   <Bar dataKey="rejected" fill="#EF4444" name="Rejected" />
                   <Bar dataKey="pending" fill="#F59E0B" name="Pending" />
                 </BarChart>
-              )}
-              {chartType === 'line' && (
+              ) : (
                 <LineChart data={applicationStats}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />

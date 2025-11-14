@@ -294,9 +294,9 @@ const InternshipDetail: React.FC = () => {
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-gray-900">
-                            {application.student_name}
+                            {(application as any).users?.first_name} {(application as any).users?.last_name}
                           </h4>
-                          <p className="text-xs text-gray-500">{application.student_email}</p>
+                          <p className="text-xs text-gray-500">{(application as any).users?.email}</p>
                         </div>
                         {getStatusBadge(application.status)}
                       </div>

@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom'
-import { useAuthStore } from '../stores/authStore'
+import { useAuth } from '../hooks/useAuth'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -12,7 +12,7 @@ export default function ProtectedRoute({
   requiredRole, 
   fallback = '/login' 
 }: ProtectedRouteProps) {
-  const { user, isAuthenticated, loading } = useAuthStore()
+  const { user, isAuthenticated, loading } = useAuth()
 
   if (loading) {
     return (

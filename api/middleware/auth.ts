@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import { supabase } from '../config/supabase'
+import { supabaseAdmin } from '../../supabase/server.ts'
 import { logSecurityEvent } from './auditLogger'
+import { User } from '../types/auth.js'
+
+// Extend Express Request interface
+export interface AuthenticatedRequest extends Request {
+  user?: User;
+}
 
 // JWT token validation middleware
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
@@ -21,7 +27,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
     
     // Verify user still exists and is active
-    const { data: user, error } = await supabase
+    const { data: user, error } = await supabaseAdmin
       .from('users')
       .select('id, email, role, is_active')
       .eq('id', decoded.userId)
@@ -110,7 +116,7 @@ export const requireOwnership = (resourceTable: string, resourceIdField: string 
 
     try {
       // Check if user owns the resource
-      const { data: resource, error } = await supabase
+      const { data: resource, error } = await supabaseAdmin
         .from(resourceTable)
         .select('user_id')
         .eq(resourceIdField, resourceId)
@@ -178,7 +184,7 @@ export const validateSession = async (req: Request, res: Response, next: NextFun
 
   try {
     // Check if session is still valid (not expired, user not disabled, etc.)
-    const { data: session, error } = await supabase
+    const { data: session, error } = await supabaseAdmin
       .from('user_sessions')
       .select('expires_at, is_active')
       .eq('user_id', user.id)

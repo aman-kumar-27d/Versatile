@@ -8,10 +8,12 @@ import {
   changePassword,
   generatePasswordResetToken,
   verifyPasswordResetToken,
-  getUserById
+  getUserById,
+  getUserByEmail
 } from '../utils/auth.js'
-import { authenticateToken, requireAuth, AuthenticatedRequest } from '../middleware/auth.js'
-import { supabaseAdmin } from '../../supabase/config.js'
+import { authenticateToken } from '../middleware/auth.js'
+import { AuthenticatedRequest } from '../middleware/auth.js'
+import { supabaseAdmin } from '../../supabase/server.ts'
 
 const router = Router()
 
@@ -174,15 +176,7 @@ router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res) => {
     }
 
     res.json({
-      user: {
-        id: req.user.id,
-        email: req.user.email,
-        role: req.user.role,
-        firstName: req.user.firstName,
-        lastName: req.user.lastName,
-        phone: req.user.phone,
-        avatarUrl: req.user.avatarUrl
-      }
+      user: req.user
     })
   } catch (error) {
     console.error('Get profile error:', error)

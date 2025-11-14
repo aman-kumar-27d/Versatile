@@ -217,6 +217,14 @@ export default function AttendanceTracking() {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   if (loading && attendanceRecords.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -421,7 +429,7 @@ export default function AttendanceTracking() {
                   <div className="ml-4">
                     <div className="flex items-center">
                       <p className="text-sm font-medium text-gray-900">{record.student_name}</p>
-                      <span className="ml-2 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(record.status)}">
+                      <span className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(record.status)}`}>
                         {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
                       </span>
                     </div>

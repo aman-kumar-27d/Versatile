@@ -1,7 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
-import { requireAuth, requireRole } from '../middleware/auth';
-import { supabase } from '../config/supabase';
+import { authenticateToken, authorize, AuthenticatedRequest } from '../middleware/auth';
+import { supabaseAdmin, supabase } from '../../supabase/server.ts';
 import { notificationService } from '../services/notificationService';
 
 const router = express.Router();
@@ -27,7 +27,7 @@ const updateAttendanceSchema = z.object({
 });
 
 // Get attendance records with filters
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const {
       start_date,
@@ -125,7 +125,7 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 // Get attendance statistics
-router.get('/stats', requireAuth, async (req, res) => {
+router.get('/stats', authenticateToken, async (req, res) => {
   try {
     const { student_id, internship_id, start_date, end_date } = req.query;
 
@@ -181,7 +181,7 @@ router.get('/stats', requireAuth, async (req, res) => {
 });
 
 // Mark attendance
-router.post('/', requireAuth, requireRole('admin'), async (req, res) => {
+router.post('/', authenticateToken, authorize(['admin']), async (req, res) => {
   try {
     const validationResult = attendanceSchema.safeParse(req.body);
     
@@ -272,7 +272,7 @@ router.post('/', requireAuth, requireRole('admin'), async (req, res) => {
 });
 
 // Update attendance record
-router.put('/:id', requireAuth, requireRole('admin'), async (req, res) => {
+router.put('/:id', authenticateToken, authorize(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const validationResult = updateAttendanceSchema.safeParse(req.body);
@@ -319,7 +319,7 @@ router.put('/:id', requireAuth, requireRole('admin'), async (req, res) => {
 });
 
 // Delete attendance record
-router.delete('/:id', requireAuth, requireRole('admin'), async (req, res) => {
+router.delete('/:id', authenticateToken, authorize(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -346,7 +346,7 @@ router.delete('/:id', requireAuth, requireRole('admin'), async (req, res) => {
 });
 
 // Export attendance data
-router.get('/export', requireAuth, async (req, res) => {
+router.get('/export', authenticateToken, async (req, res) => {
   try {
     const {
       start_date,
@@ -402,10 +402,10 @@ router.get('/export', requireAuth, async (req, res) => {
     const csvHeaders = ['Date', 'Student Name', 'Student Email', 'Internship', 'Company', 'Status', 'Check In', 'Check Out', 'Hours Worked', 'Notes'];
     const csvRows = data.map(record => [
       record.date,
-      record.student?.full_name || 'Unknown',
-      record.student?.email || 'Unknown',
-      record.internship?.title || 'Unknown',
-      record.internship?.company_name || 'Unknown',
+      (record as any).student?.full_name || 'Unknown',
+      (record as any).student?.email || 'Unknown',
+      (record as any).internship?.title || 'Unknown',
+      (record as any).internship?.company_name || 'Unknown',
       record.status,
       record.check_in_time || '',
       record.check_out_time || '',

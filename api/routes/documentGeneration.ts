@@ -1,9 +1,9 @@
 import express from 'express';
 import { z } from 'zod';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { authenticateToken, authorize } from '../middleware/auth';
 import { documentGenerationService, OfferLetterData, CertificateData } from '../services/documentGenerationService';
 import { notificationService } from '../services/notificationService';
-import { supabase } from '../config/supabase';
+import { supabase } from '../../supabase/server.ts';
 
 const router = express.Router();
 
@@ -34,7 +34,7 @@ const certificateSchema = z.object({
 });
 
 // Generate offer letter
-router.post('/offer-letter', requireAuth, requireRole('admin'), async (req, res) => {
+router.post('/offer-letter', authenticateToken, authorize(['admin']), async (req, res) => {
   try {
     const validationResult = offerLetterSchema.safeParse(req.body);
     
@@ -45,7 +45,7 @@ router.post('/offer-letter', requireAuth, requireRole('admin'), async (req, res)
       });
     }
 
-    const offerLetterData: OfferLetterData = validationResult.data;
+    const offerLetterData = validationResult.data as OfferLetterData;
     
     // Generate the offer letter
     const generatedDocument = await documentGenerationService.generateOfferLetter(offerLetterData);
@@ -75,7 +75,7 @@ router.post('/offer-letter', requireAuth, requireRole('admin'), async (req, res)
 });
 
 // Generate completion certificate
-router.post('/completion-certificate', requireAuth, requireRole('admin'), async (req, res) => {
+router.post('/completion-certificate', authenticateToken, authorize(['admin']), async (req, res) => {
   try {
     const validationResult = certificateSchema.safeParse(req.body);
     
@@ -86,12 +86,12 @@ router.post('/completion-certificate', requireAuth, requireRole('admin'), async 
       });
     }
 
-    const certificateData: CertificateData = validationResult.data;
+    const certificateData = validationResult.data as CertificateData;
     
     // Fetch student email from the internship application
     const { data: application, error: appError } = await supabase
-      .from('internship_applications')
-      .select('student_id, student:users!inner(email)')
+      .from('applications')
+      .select('student_id, users!inner(email)')
       .eq('internship_id', certificateData.internship_id)
       .single();
 
@@ -103,10 +103,10 @@ router.post('/completion-certificate', requireAuth, requireRole('admin'), async 
     const generatedDocument = await documentGenerationService.generateCompletionCertificate(certificateData);
     
     // Send notification to student if we have their email
-    if (application?.student?.email) {
+    if ((application as any)?.users?.email) {
       await notificationService.sendCertificateNotification({
         studentName: certificateData.student_name,
-        studentEmail: application.student.email,
+        studentEmail: (application as any).users.email,
         internshipTitle: certificateData.internship_title,
         companyName: certificateData.company_name,
         documentUrl: generatedDocument.document_url,
@@ -171,7 +171,7 @@ router.get('/verify/:verificationCode', async (req, res) => {
 });
 
 // Get student's generated documents
-router.get('/student/:studentId', requireAuth, async (req, res) => {
+router.get('/student/:studentId', authenticateToken, async (req, res) => {
   try {
     const { studentId } = req.params;
     const userId = req.user!.id;
@@ -209,7 +209,7 @@ router.get('/student/:studentId', requireAuth, async (req, res) => {
 });
 
 // Get all generated documents (admin only)
-router.get('/all', requireAuth, requireRole('admin'), async (req, res) => {
+router.get('/all', authenticateToken, authorize(['admin']), async (req, res) => {
   try {
     const { page = 1, limit = 50, type, student_id } = req.query;
     
@@ -257,7 +257,7 @@ router.get('/all', requireAuth, requireRole('admin'), async (req, res) => {
 });
 
 // Delete generated document
-router.delete('/:documentId', requireAuth, requireRole('admin'), async (req, res) => {
+router.delete('/:documentId', authenticateToken, authorize(['admin']), async (req, res) => {
   try {
     const { documentId } = req.params;
     
