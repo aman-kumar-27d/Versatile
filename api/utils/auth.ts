@@ -162,4 +162,76 @@ export async function authenticateUser(email: string, password: string): Promise
   
   return {
     id: user.id,
-    email:
+    email: user.email,
+    role: user.role,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    phone: user.phone || undefined,
+    avatarUrl: user.avatar_url || undefined
+  }
+}
+
+/**
+ * Update user profile
+ */
+export async function updateUserProfile(
+  userId: string,
+  updates: Partial<Pick<User, 'first_name' | 'last_name' | 'phone' | 'avatar_url'>>
+): Promise<User | null> {
+  const { data, error } = await supabaseAdmin
+    .from('users')
+    .update(updates)
+    .eq('id', userId)
+    .select()
+    .single()
+  
+  if (error || !data) {
+    return null
+  }
+  
+  return data
+}
+
+/**
+ * Change user password
+ */
+export async function changePassword(userId: string, newPassword: string): Promise<boolean> {
+  try {
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      { password: newPassword }
+    )
+    
+    return !error
+  } catch (error) {
+    return false
+  }
+}
+
+/**
+ * Generate password reset token
+ */
+export function generatePasswordResetToken(userId: string): string {
+  const payload = {
+    userId,
+    type: 'password_reset',
+    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
+  }
+  
+  return jwt.sign(payload, JWT_SECRET)
+}
+
+/**
+ * Verify password reset token
+ */
+export function verifyPasswordResetToken(token: string): string | null {
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as any
+    if (payload.type === 'password_reset') {
+      return payload.userId
+    }
+    return null
+  } catch (error) {
+    return null
+  }
+}
