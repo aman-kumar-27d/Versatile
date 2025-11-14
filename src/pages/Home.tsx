@@ -13,6 +13,10 @@ export default function Home() {
     navigate('/admin/dashboard');
   };
 
+  const handleStudentDashboard = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
       <div className="max-w-4xl mx-auto text-center px-4">
@@ -32,12 +36,20 @@ export default function Home() {
               Get Started
             </button>
           ) : (
-            <button
-              onClick={handleAdminDashboard}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Go to Dashboard
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleStudentDashboard}
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Student Dashboard
+              </button>
+              <button
+                onClick={handleAdminDashboard}
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Admin Dashboard
+              </button>
+            </div>
           )}
         </div>
 

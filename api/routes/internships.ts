@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { supabaseAdmin } from '../../supabase/server.js'
 import { authenticateToken, requireAdmin, AuthenticatedRequest } from '../middleware/auth.js'
+import { notificationService } from '../services/notificationService.js'
 import type { Internship, Application } from '../../supabase/server.js'
 
 const router = Router()
@@ -431,6 +432,43 @@ router.put('/:id/applications/:applicationId', authenticateToken, requireAdmin, 
 
     if (error) {
       return res.status(500).json({ error: error.message })
+    }
+
+    // Send notification to student
+    try {
+      // Get student and internship details
+      const { data: studentData } = await supabaseAdmin
+        .from('users')
+        .select('email, first_name, last_name, phone')
+        .eq('id', application.student_id)
+        .single()
+
+      const { data: internshipData } = await supabaseAdmin
+        .from('internships')
+        .select('title')
+        .eq('id', application.internship_id)
+        .single()
+
+      if (studentData && internshipData) {
+        const studentName = `${studentData.first_name} ${studentData.last_name}`
+        
+        if (status === 'approved') {
+          await notificationService.notifyApplicationApproved(
+            studentData.email,
+            studentName,
+            internshipData.title
+          )
+        } else if (status === 'rejected') {
+          await notificationService.notifyApplicationRejected(
+            studentData.email,
+            studentName,
+            internshipData.title
+          )
+        }
+      }
+    } catch (notificationError) {
+      console.error('Failed to send notification:', notificationError)
+      // Don't fail the request if notification fails
     }
 
     res.json({

@@ -22,7 +22,7 @@ const InternshipDetail: React.FC = () => {
     if (id) {
       fetchInternshipDetails();
       fetchApplications();
-    }
+    } 
   }, [user, navigate, id]);
 
   const fetchInternshipDetails = async () => {

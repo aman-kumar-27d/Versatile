@@ -12,6 +12,10 @@ import path from 'path'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
 import authRoutes from './routes/auth.js'
+import internshipRoutes from './routes/internships.js'
+import documentRoutes from './routes/documents.js'
+import documentGenerationRoutes from './routes/documentGeneration.js'
+import attendanceRoutes from './routes/attendance.js'
 
 // for esm mode
 const __filename = fileURLToPath(import.meta.url)
@@ -30,6 +34,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
  * API Routes
  */
 app.use('/api/auth', authRoutes)
+app.use('/api/internships', internshipRoutes)
+app.use('/api/documents', documentRoutes)
+app.use('/api/document-generation', documentGenerationRoutes)
+app.use('/api/attendance', attendanceRoutes)
 
 /**
  * health
