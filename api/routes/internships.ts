@@ -1,8 +1,8 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import { supabaseAdmin } from '../../supabase/config.js'
+import { supabaseAdmin } from '../../supabase/server.js'
 import { authenticateToken, requireAdmin, AuthenticatedRequest } from '../middleware/auth.js'
-import type { Internship, Application } from '../../supabase/config.js'
+import type { Internship, Application } from '../../supabase/server.js'
 
 const router = Router()
 

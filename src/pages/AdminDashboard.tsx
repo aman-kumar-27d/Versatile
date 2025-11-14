@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '../../supabase/config';
 import { Internship } from '../../supabase/config';
 import { Plus, Users, BookOpen, Calendar, FileText, Settings, LogOut, BarChart3 } from 'lucide-react';
 
@@ -30,35 +29,54 @@ const AdminDashboard: React.FC = () => {
     try {
       setLoading(true);
       
-      // Fetch internships
-      const { data: internshipsData, error: internshipsError } = await supabase
-        .from('internships')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Mock data for testing
+      const mockInternships: Internship[] = [
+        {
+          id: '1',
+          title: 'Software Development Intern',
+          description: 'Join our development team to work on cutting-edge web applications.',
+          type: 'full-time',
+          duration: '3 months',
+          location: 'Remote',
+          stipend: 15000,
+          application_deadline: '2024-12-31',
+          start_date: '2025-01-15',
+          requirements: 'Bachelor\'s degree in Computer Science, knowledge of JavaScript and React',
+          responsibilities: 'Develop web applications, write clean code, collaborate with team',
+          skills_required: 'JavaScript, React, Node.js, Git',
+          max_applicants: 50,
+          is_active: true,
+          created_by: 'admin-user-id',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z'
+        },
+        {
+          id: '2',
+          title: 'Data Science Intern',
+          description: 'Work with our data team to analyze large datasets and build ML models.',
+          type: 'part-time',
+          duration: '6 months',
+          location: 'Mumbai',
+          stipend: 20000,
+          application_deadline: '2024-12-15',
+          start_date: '2025-01-01',
+          requirements: 'Bachelor\'s degree in Statistics, Python programming',
+          responsibilities: 'Data analysis, model building, report generation',
+          skills_required: 'Python, R, SQL, Machine Learning',
+          max_applicants: 30,
+          is_active: true,
+          created_by: 'admin-user-id',
+          created_at: '2024-01-02T00:00:00Z',
+          updated_at: '2024-01-02T00:00:00Z'
+        }
+      ];
 
-      if (internshipsError) throw internshipsError;
-      setInternships(internshipsData || []);
-
-      // Fetch stats
-      const { count: totalInternships } = await supabase
-        .from('internships')
-        .select('*', { count: 'exact', head: true });
-
-      const { count: activeApplications } = await supabase
-        .from('applications')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
-
-      const { count: totalStudents } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'student');
-
+      setInternships(mockInternships);
       setStats({
-        totalInternships: totalInternships || 0,
-        activeApplications: activeApplications || 0,
-        totalStudents: totalStudents || 0,
-        upcomingMeetings: 0 // Will implement with calendar
+        totalInternships: mockInternships.length,
+        activeApplications: 5,
+        totalStudents: 25,
+        upcomingMeetings: 3
       });
 
     } catch (error) {

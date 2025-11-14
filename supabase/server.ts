@@ -1,13 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
+import dotenv from 'dotenv'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key'
-const supabaseServiceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key'
+// Load environment variables for server-side
+dotenv.config()
 
-// Client for frontend (anon key)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
-// Client for backend (service role key)
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.warn('Warning: Missing Supabase environment variables for server-side operations')
+  console.warn('Please ensure VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set')
+}
+
+// Server-side client with service role key (full privileges)
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
 export type Database = {

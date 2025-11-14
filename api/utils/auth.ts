@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import { supabaseAdmin } from '../../supabase/config.js'
-import type { User } from '../../supabase/config.js'
+import { supabaseAdmin } from '../../supabase/server.js'
+import type { User } from '../../supabase/server.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12')
