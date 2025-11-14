@@ -1,47 +1,37 @@
-import React from 'react'
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthStore } from '../stores/authStore'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
-  roles?: ('admin' | 'student')[]
-  requireAuth?: boolean
+  requiredRole?: 'admin' | 'student' | ('admin' | 'student')[]
+  fallback?: string
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+export default function ProtectedRoute({ 
   children, 
-  roles, 
-  requireAuth = true 
-}) => {
-  const { user, isLoading } = useAuth()
+  requiredRole, 
+  fallback = '/login' 
+}: ProtectedRouteProps) {
+  const { user, isAuthenticated, loading } = useAuthStore()
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     )
   }
 
-  if (requireAuth && !user) {
-    return <Navigate to="/login" replace />
+  if (!isAuthenticated || !user) {
+    return <Navigate to={fallback} replace />
   }
 
-  if (roles && user && !roles.includes(user.role)) {
-    return <Navigate to="/" replace />
+  if (requiredRole) {
+    const requiredRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole]
+    if (!requiredRoles.includes(user.role as 'admin' | 'student')) {
+      return <Navigate to="/unauthorized" replace />
+    }
   }
 
   return <>{children}</>
 }
-
-export const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <ProtectedRoute roles={['admin']}>
-    {children}
-  </ProtectedRoute>
-)
-
-export const StudentRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <ProtectedRoute roles={['student']}>
-    {children}
-  </ProtectedRoute>
-)

@@ -16,6 +16,22 @@ import internshipRoutes from './routes/internships.js'
 import documentRoutes from './routes/documents.js'
 import documentGenerationRoutes from './routes/documentGeneration.js'
 import attendanceRoutes from './routes/attendance.js'
+import gdprRoutes from './routes/gdpr.js'
+import {
+  securityHeaders,
+  sanitizeInput,
+  preventNoSQLInjection,
+  corsOptions,
+  authRateLimiter,
+  apiRateLimiter,
+  uploadRateLimiter
+} from './middleware/security.js'
+import {
+  requestLogger,
+  auditLogger,
+  errorLogger,
+  performanceMonitor
+} from './middleware/auditLogger.js'
 
 // for esm mode
 const __filename = fileURLToPath(import.meta.url)
@@ -26,18 +42,28 @@ dotenv.config()
 
 const app: express.Application = express()
 
-app.use(cors())
+// Security middleware
+app.use(securityHeaders)
+app.use(cors(corsOptions))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+app.use(sanitizeInput)
+app.use(preventNoSQLInjection)
+
+// Logging middleware
+app.use(requestLogger)
+app.use(auditLogger)
+app.use(performanceMonitor)
 
 /**
  * API Routes
  */
-app.use('/api/auth', authRoutes)
-app.use('/api/internships', internshipRoutes)
-app.use('/api/documents', documentRoutes)
-app.use('/api/document-generation', documentGenerationRoutes)
-app.use('/api/attendance', attendanceRoutes)
+app.use('/api/auth', authRateLimiter, authRoutes)
+app.use('/api/internships', apiRateLimiter, internshipRoutes)
+app.use('/api/documents', apiRateLimiter, uploadRateLimiter, documentRoutes)
+app.use('/api/document-generation', apiRateLimiter, documentGenerationRoutes)
+app.use('/api/attendance', apiRateLimiter, attendanceRoutes)
+app.use('/api/gdpr', apiRateLimiter, gdprRoutes)
 
 /**
  * health
@@ -55,12 +81,7 @@ app.use(
 /**
  * error handler middleware
  */
-app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({
-    success: false,
-    error: 'Server internal error',
-  })
-})
+app.use(errorLogger)
 
 /**
  * 404 handler
